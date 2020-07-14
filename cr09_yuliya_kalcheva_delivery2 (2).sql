@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 11, 2020 at 06:29 PM
+-- Generation Time: Jul 14, 2020 at 07:33 AM
 -- Server version: 10.4.13-MariaDB
 -- PHP Version: 7.4.7
 
@@ -20,8 +20,6 @@ SET time_zone = "+00:00";
 --
 -- Database: `cr09_yuliya_kalcheva_delivery2`
 --
-CREATE DATABASE IF NOT EXISTS `cr09_yuliya_kalcheva_delivery2` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
-USE `cr09_yuliya_kalcheva_delivery2`;
 
 -- --------------------------------------------------------
 
@@ -36,6 +34,18 @@ CREATE TABLE `address` (
   `a_city` varchar(55) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+--
+-- Dumping data for table `address`
+--
+
+INSERT INTO `address` (`a_id`, `a_streetname`, `a_postalcode`, `a_city`) VALUES
+(1, 'Geiselbergstr', 1110, 'Vienna'),
+(2, 'Berlinerstrs', 13350, 'Berlin'),
+(3, 'Bagdat STR', 34000, 'istanbul'),
+(4, 'DresdnerStr', 1200, 'Vienna'),
+(5, 'Karlova', 22223, 'Prague'),
+(6, 'Hochbergstr', 4440, 'Salzburg');
+
 -- --------------------------------------------------------
 
 --
@@ -46,6 +56,14 @@ CREATE TABLE `delivered` (
   `de_id` int(11) NOT NULL,
   `fk_em_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `delivered`
+--
+
+INSERT INTO `delivered` (`de_id`, `fk_em_id`) VALUES
+(2, 1),
+(1, 3);
 
 -- --------------------------------------------------------
 
@@ -60,6 +78,15 @@ CREATE TABLE `employee` (
   `fk_mds_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+--
+-- Dumping data for table `employee`
+--
+
+INSERT INTO `employee` (`em_id`, `em_first_name`, `em_last_name`, `fk_mds_id`) VALUES
+(1, 'Pierre', 'Cox', 7),
+(2, 'Thomas', 'Crane', 6),
+(3, 'Bradyn', 'Kramer', 5);
+
 -- --------------------------------------------------------
 
 --
@@ -71,6 +98,19 @@ CREATE TABLE `mds` (
   `fk_pa_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+--
+-- Dumping data for table `mds`
+--
+
+INSERT INTO `mds` (`mds_id`, `fk_pa_id`) VALUES
+(3, 1),
+(4, 2),
+(1, 3),
+(5, 4),
+(6, 5),
+(2, 6),
+(7, 6);
+
 -- --------------------------------------------------------
 
 --
@@ -80,11 +120,23 @@ CREATE TABLE `mds` (
 CREATE TABLE `package` (
   `pa_id` int(11) NOT NULL,
   `pa_size` varchar(55) DEFAULT NULL,
-  `pa_pickedupdate` date DEFAULT NULL,
+  `pa_pickedupdate` date DEFAULT current_timestamp(),
   `pa_status` enum('station','home') DEFAULT NULL,
   `fk_sender_id` int(11) DEFAULT NULL,
   `fk_re_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `package`
+--
+
+INSERT INTO `package` (`pa_id`, `pa_size`, `pa_pickedupdate`, `pa_status`, `fk_sender_id`, `fk_re_id`) VALUES
+(1, 'Small', '2020-07-14', 'station', 2, 1),
+(2, 'Small', '2020-07-10', 'home', 3, 2),
+(3, 'Heavy', '2020-07-19', 'home', 3, 2),
+(4, 'Small', '2020-07-17', 'station', 1, 1),
+(5, 'Small', '2020-07-20', 'home', 3, 3),
+(6, 'Heavy', '2020-07-10', 'home', 1, 3);
 
 -- --------------------------------------------------------
 
@@ -102,6 +154,15 @@ CREATE TABLE `process` (
   `fk_mds_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+--
+-- Dumping data for table `process`
+--
+
+INSERT INTO `process` (`pr_id`, `picked_up_date`, `delivered_date`, `delivered_status`, `fk_re_id`, `fk_em_id`, `fk_mds_id`) VALUES
+(1, '2020-07-06', '2020-07-09', 'Y', 2, 3, 1),
+(2, '2020-07-08', '2020-07-13', 'N', 2, 1, 2),
+(3, '2020-07-06', '2020-07-29', 'N', 1, 2, 6);
+
 -- --------------------------------------------------------
 
 --
@@ -117,6 +178,15 @@ CREATE TABLE `receiver` (
   `fk_pa_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+--
+-- Dumping data for table `receiver`
+--
+
+INSERT INTO `receiver` (`re_id`, `re_first_name`, `re_last_name`, `fk_a_id`, `fk_pr_id`, `fk_pa_id`) VALUES
+(1, 'Cierra', 'Vega', 1, 2, 1),
+(2, 'Alden', 'Cantrel', 2, 2, 2),
+(3, 'Miranda', 'Shaffer', 3, 3, 3);
+
 -- --------------------------------------------------------
 
 --
@@ -130,6 +200,15 @@ CREATE TABLE `sender` (
   `resident_city` varchar(55) DEFAULT NULL,
   `fk_a_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `sender`
+--
+
+INSERT INTO `sender` (`sender_id`, `sender_first_name`, `sender_name_name`, `resident_city`, `fk_a_id`) VALUES
+(1, 'Giovanny', 'Tucker', 'Istanbul', 3),
+(2, 'Mylie', 'Barron', 'BERLIN', 2),
+(3, 'Hulya', 'Kurt', 'Vienna', 1);
 
 --
 -- Indexes for dumped tables
@@ -185,7 +264,8 @@ ALTER TABLE `process`
 ALTER TABLE `receiver`
   ADD PRIMARY KEY (`re_id`),
   ADD KEY `fk_a_id` (`fk_a_id`),
-  ADD KEY `fk_pa_id` (`fk_pa_id`);
+  ADD KEY `fk_pa_id` (`fk_pa_id`),
+  ADD KEY `fk_pr_id` (`fk_pr_id`);
 
 --
 -- Indexes for table `sender`
@@ -202,49 +282,49 @@ ALTER TABLE `sender`
 -- AUTO_INCREMENT for table `address`
 --
 ALTER TABLE `address`
-  MODIFY `a_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `a_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `delivered`
 --
 ALTER TABLE `delivered`
-  MODIFY `de_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `de_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `employee`
 --
 ALTER TABLE `employee`
-  MODIFY `em_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `em_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `mds`
 --
 ALTER TABLE `mds`
-  MODIFY `mds_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `mds_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `package`
 --
 ALTER TABLE `package`
-  MODIFY `pa_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `pa_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `process`
 --
 ALTER TABLE `process`
-  MODIFY `pr_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `pr_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `receiver`
 --
 ALTER TABLE `receiver`
-  MODIFY `re_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `re_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `sender`
 --
 ALTER TABLE `sender`
-  MODIFY `sender_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `sender_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- Constraints for dumped tables
@@ -288,7 +368,10 @@ ALTER TABLE `process`
 --
 ALTER TABLE `receiver`
   ADD CONSTRAINT `receiver_ibfk_1` FOREIGN KEY (`fk_a_id`) REFERENCES `address` (`a_id`),
-  ADD CONSTRAINT `receiver_ibfk_2` FOREIGN KEY (`fk_pa_id`) REFERENCES `package` (`pa_id`);
+  ADD CONSTRAINT `receiver_ibfk_2` FOREIGN KEY (`fk_pa_id`) REFERENCES `package` (`pa_id`),
+  ADD CONSTRAINT `receiver_ibfk_3` FOREIGN KEY (`fk_pa_id`) REFERENCES `package` (`pa_id`),
+  ADD CONSTRAINT `receiver_ibfk_4` FOREIGN KEY (`fk_pr_id`) REFERENCES `process` (`pr_id`),
+  ADD CONSTRAINT `receiver_ibfk_5` FOREIGN KEY (`fk_a_id`) REFERENCES `address` (`a_id`);
 
 --
 -- Constraints for table `sender`
